@@ -275,8 +275,8 @@ i2c_prep_master_ack:
 ;--------------------------------------------
 i2c_wait_master_ack:    
     ; Get master ack/nack
-    in r16,USIDR                        ; Read Data Register
-    sbrc r16,0                          ; Master response as bit 0, skip next line if ACK
+    sbic USIDR,0                        ; Read Data Register
+                                        ; Master response as bit 0, skip next line if ACK
     rjmp i2c_restart                    ; It was a NACK, goto restart
 
     ; Master ACK, transmit next byte

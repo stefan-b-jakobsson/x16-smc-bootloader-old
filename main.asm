@@ -164,16 +164,15 @@ post_reset:
     
     ; Disable watchdog timer
     wdr
-    ldi r16,0
-    out MCUSR,r16
+    clr ZL
+    out MCUSR,ZL
     in r16,WDTCSR
     ori r16,(1<<WDCE) | (1<<WDE)
     out WDTCSR,r16
-    ldi r16,0
-    out WDTCSR,r16
+    out WDTCSR,ZL
 
     ; Write zero page to flash memory
-    clr ZL
+    ; ZL already zero
     clr ZH
     ldi YL,low(flash_zp_buf)
     ldi YH,high(flash_zp_buf)
