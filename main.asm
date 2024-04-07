@@ -181,9 +181,6 @@ post_reset:
     ldi YH,high(flash_zp_buf)
     rcall flash_write
 
-    ; Enable interrupts
-    sei
-
     ; Jump to firmware reset vector
     rjmp 0x0000
 
