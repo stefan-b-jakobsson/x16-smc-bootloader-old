@@ -133,8 +133,7 @@ cmd_commit_err:
     movw packet_headH:packet_headL,packet_tailH:packet_tailL
 
 cmd_commit_exit:
-    clr packet_size
-    clr checksum
+    movw checksum, zero_L ; clear checksum and packet_size
 
 .endmacro
 

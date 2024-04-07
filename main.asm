@@ -42,9 +42,9 @@
 .def zero_L                 = r8              ; fixed zero registers
 .def zero_H                 = r9
 
-.def packet_size            = r20             ; Current packet byte count
-.def packet_count           = r21             ; Number of packets received since last flash write
-.def checksum               = r22             ; Current packet checksum
+.def checksum               = r20             ; Current packet checksum (movw opt: must be even, before packet_size)
+.def packet_size            = r21             ; Current packet byte count (movw opt: must be odd, after checksum)
+.def packet_count           = r22             ; Number of packets received since last flash write
 .def i2c_state              = r23             ; Current state for I2C state machine
 .def i2c_ddr                = r24             ; I2C data direction, bit 0=0 if master write else master read
 .def i2c_command            = r25             ; Current I2C command
@@ -76,9 +76,8 @@ main:
     clr zero_L
     clr zero_H
 
-    clr packet_size
+    movw checksum, zero_L ; clear checksum and packet size
     clr packet_count
-    clr checksum
 
     rcall flash_erasepage
 
