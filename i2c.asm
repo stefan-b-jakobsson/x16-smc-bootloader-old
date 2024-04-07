@@ -115,10 +115,10 @@ i2c_isr_start2:
     breq i2c_isr_start2
 
     ; Start or stop?
-    ldi r16,I2C_ACTIVE              ; Control value after start condition detected
+    ldi r17,I2C_ACTIVE              ; Control value after start condition detected
     sbrc r16,I2C_SDA                ; Skip next line if SDA is low (start condition)
-    ldi r16,I2C_IDLE                ; Control value after stop condition detected
-    out USICR,r16                   ; Write to control register
+    ldi r17,I2C_IDLE                ; Control value after stop condition detected
+    out USICR,r17                   ; Write to control register
 
     ; Configure, clear all flags and count in byte
     ldi r16,(I2C_CLEAR_STARTFLAG | I2C_COUNT_BYTE)
