@@ -25,6 +25,8 @@
 
 .include "tn861def.inc"
 
+.include "macros.inc"
+
 ;******************************************************************************
 ; Global variables persistent in CPU registers
 ;******************************************************************************
@@ -37,9 +39,12 @@
 .def target_addrL           = r6              ; Target address in flash memory
 .def target_addrH           = r7
 
-.def packet_size            = r20             ; Current packet byte count
-.def packet_count           = r21             ; Number of packets received since last flash write
-.def checksum               = r22             ; Current packet checksum
+.def zero_L                 = r8              ; fixed zero registers
+.def zero_H                 = r9
+
+.def checksum               = r20             ; Current packet checksum (movw opt: must be even, before packet_size)
+.def packet_size            = r21             ; Current packet byte count (movw opt: must be odd, after checksum)
+.def packet_count           = r22             ; Number of packets received since last flash write
 .def i2c_state              = r23             ; Current state for I2C state machine
 .def i2c_ddr                = r24             ; I2C data direction, bit 0=0 if master write else master read
 .def i2c_command            = r25             ; Current I2C command
@@ -67,15 +72,14 @@ main:
     movw packet_tailH:packet_tailL, YH:YL
     movw packet_headH:packet_headL, YH:YL
 
-    clr packet_size
-    clr packet_count
-    clr checksum
+    ; fixed zero registers
+    clr zero_L
+    clr zero_H
 
-    ; Clear zero page buffer
-    ldi r16,0xff
-    ldi r17,0xff
-    ldi r18,PAGE_SIZE/2
-    rcall flash_fillbuffer
+    movw checksum, zero_L ; clear checksum and packet size
+    clr packet_count
+
+    rcall flash_erasepage
 
     ; Setup USI Start and Overflow vectors
     ldi YL,low(flash_buf)                               ; Pointer to start of default buffer
@@ -106,8 +110,7 @@ main:
     ldi r16, high(0b1100000000000000 + i2c_isr_overflow - 1 - 8)
     st Y+,r16
 
-    clr ZL                                              ; Set target addess to 0x0000
-    clr ZH
+    movw ZL, zero_L                                     ; Set target addess to 0x0000
     rcall flash_write_buf                               ; Write buffer that contains vector table for the bootloader to flash memory
 
     ; Set target address to start of second page = 0x0040
@@ -116,7 +119,7 @@ main:
     movw target_addrH:target_addrL, r17:r16
 
     ; Init I2C handler
-    rcall i2c_init
+    I2C_INIT
 
     sei
 
@@ -164,23 +167,19 @@ post_reset:
     
     ; Disable watchdog timer
     wdr
-    ldi r16,0
-    out MCUSR,r16
+    clr ZL
+    out MCUSR,ZL
     in r16,WDTCSR
     ori r16,(1<<WDCE) | (1<<WDE)
     out WDTCSR,r16
-    ldi r16,0
-    out WDTCSR,r16
+    out WDTCSR,ZL
 
     ; Write zero page to flash memory
-    clr ZL
+    ; ZL already zero
     clr ZH
     ldi YL,low(flash_zp_buf)
     ldi YH,high(flash_zp_buf)
     rcall flash_write
-
-    ; Enable interrupts
-    sei
 
     ; Jump to firmware reset vector
     rjmp 0x0000

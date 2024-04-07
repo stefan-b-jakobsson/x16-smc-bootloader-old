@@ -118,10 +118,7 @@ cmd_commit_fullpage:
     movw packet_headH:packet_headL, YH:YL
 
     ; Fill buffer with 0xFF
-    ldi r16,0xff
-    ldi r17,0xff
-    ldi r18,PAGE_SIZE/2
-    rcall flash_fillbuffer
+    rcall flash_erasepage
 
 cmd_commit_ok:
     ; Load return value
@@ -136,8 +133,7 @@ cmd_commit_err:
     movw packet_headH:packet_headL,packet_tailH:packet_tailL
 
 cmd_commit_exit:
-    clr packet_size
-    clr checksum
+    movw checksum, zero_L ; clear checksum and packet_size
 
 .endmacro
 
@@ -155,9 +151,7 @@ cmd_commit_exit:
     ; Disable I2C
     ldi r16,I2C_CLEAR_STARTFLAG + I2C_COUNT_BYTE
     out USISR,r16
-    
-    clr r16
-    out USICR,r16
+    out USICR,zero_L
 
     cbi DDRB,I2C_CLK
     cbi DDRB,I2C_SDA
