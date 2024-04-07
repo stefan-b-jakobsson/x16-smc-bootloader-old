@@ -25,6 +25,8 @@
 
 .include "tn861def.inc"
 
+.include "macros.inc"
+
 ;******************************************************************************
 ; Global variables persistent in CPU registers
 ;******************************************************************************
@@ -112,7 +114,7 @@ main:
     movw target_addrH:target_addrL, r17:r16
 
     ; Init I2C handler
-    rcall i2c_init
+    I2C_INIT
 
     sei
 
