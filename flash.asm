@@ -102,6 +102,15 @@ flash_spm3:
 
     ret
 
+
+flash_erasepage:
+    ; Clear zero page buffer
+    ldi r16,0xff
+    ldi r17,0xff
+    ldi r18,PAGE_SIZE/2
+    ; Fallthrough to flash_fillbuffer
+
+
 ;******************************************************************************
 ; Function...: flash_fillbuffer
 ; Description: Fills RAM buffer

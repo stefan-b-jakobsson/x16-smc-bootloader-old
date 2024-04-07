@@ -118,10 +118,7 @@ cmd_commit_fullpage:
     movw packet_headH:packet_headL, YH:YL
 
     ; Fill buffer with 0xFF
-    ldi r16,0xff
-    ldi r17,0xff
-    ldi r18,PAGE_SIZE/2
-    rcall flash_fillbuffer
+    rcall flash_erasepage
 
 cmd_commit_ok:
     ; Load return value

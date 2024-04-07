@@ -71,11 +71,7 @@ main:
     clr packet_count
     clr checksum
 
-    ; Clear zero page buffer
-    ldi r16,0xff
-    ldi r17,0xff
-    ldi r18,PAGE_SIZE/2
-    rcall flash_fillbuffer
+    rcall flash_erasepage
 
     ; Setup USI Start and Overflow vectors
     ldi YL,low(flash_buf)                               ; Pointer to start of default buffer
