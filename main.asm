@@ -39,6 +39,9 @@
 .def target_addrL           = r6              ; Target address in flash memory
 .def target_addrH           = r7
 
+.def zero_L                 = r8              ; fixed zero registers
+.def zero_H                 = r9
+
 .def packet_size            = r20             ; Current packet byte count
 .def packet_count           = r21             ; Number of packets received since last flash write
 .def checksum               = r22             ; Current packet checksum
@@ -68,6 +71,10 @@ main:
     ldi YH,high(flash_zp_buf)
     movw packet_tailH:packet_tailL, YH:YL
     movw packet_headH:packet_headL, YH:YL
+
+    ; fixed zero registers
+    clr zero_L
+    clr zero_H
 
     clr packet_size
     clr packet_count
@@ -104,8 +111,7 @@ main:
     ldi r16, high(0b1100000000000000 + i2c_isr_overflow - 1 - 8)
     st Y+,r16
 
-    clr ZL                                              ; Set target addess to 0x0000
-    clr ZH
+    movw ZL, zero_L                                     ; Set target addess to 0x0000
     rcall flash_write_buf                               ; Write buffer that contains vector table for the bootloader to flash memory
 
     ; Set target address to start of second page = 0x0040

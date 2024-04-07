@@ -152,9 +152,7 @@ cmd_commit_exit:
     ; Disable I2C
     ldi r16,I2C_CLEAR_STARTFLAG + I2C_COUNT_BYTE
     out USISR,r16
-    
-    clr r16
-    out USICR,r16
+    out USICR,zero_L
 
     cbi DDRB,I2C_CLK
     cbi DDRB,I2C_SDA
